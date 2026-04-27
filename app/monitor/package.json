@@ -1,0 +1,9 @@
+{
+  "name": "monitor-sd-monitor",
+  "version": "1.0.0",
+  "description": "Monitor Sales-to-Cash — Fiori Elements app",
+  "scripts": {
+    "build": "mkdir -p dist .build && cp -r webapp/. .build/ && cp xs-app.json .build/ && cd .build && zip -r ../dist/monitor.zip . && cd .. && rm -rf .build"
+  },
+  "devDependencies": {}
+}

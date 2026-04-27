@@ -12,7 +12,24 @@
         "type": "OData",
         "settings": { "odataVersion": "4.0" }
       }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "MonitorSD-display": {
+          "semanticObject": "MonitorSD",
+          "action": "display",
+          "title": "Monitor Sales-to-Cash",
+          "icon": "sap-icon://sales-order",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
     }
+  },
+  "sap.cloud": {
+    "service": "monitor.sd"
   },
   "sap.ui": {
     "technology": "UI5",

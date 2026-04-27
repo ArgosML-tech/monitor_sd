@@ -4,6 +4,7 @@
   "dependencies": {
     "@cap-js/audit-logging": "^1.2.0",
     "@cap-js/hana": "^2",
+    "@cap-js/sqlite": "^2",
     "@sap-cloud-sdk/connectivity": "^4",
     "@sap-cloud-sdk/http-client": "^4",
     "@sap-cloud-sdk/resilience": "^4",
@@ -11,7 +12,6 @@
   },
   "devDependencies": {
     "@cap-js/cds-test": "^1.0.0",
-    "@cap-js/sqlite": "^2",
     "@playwright/test": "^1.59.1",
     "jest": "^30.3.0"
   },

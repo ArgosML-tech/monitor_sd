@@ -1,0 +1,150 @@
+_schema-version: "3.1"
+ID: monitor-sd
+version: 1.0.0
+description: "Monitor Sales-to-Cash — CAP + Fiori Elements"
+
+parameters:
+  enable-parallel-deployments: true
+
+build-parameters:
+  before-all:
+    - builder: custom
+      commands:
+        - npm --prefix . install
+        - npx cds build
+        - mkdir -p gen/srv/app/monitor/webapp
+        - cp -r app/monitor/webapp/. gen/srv/app/monitor/webapp/
+        - mkdir -p gen/srv/app/appconfig
+        - cp -r app/appconfig/. gen/srv/app/appconfig/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MODULES
+# ─────────────────────────────────────────────────────────────────────────────
+
+modules:
+
+  # ── CAP Service ────────────────────────────────────────────────────────────
+  - name: monitor-sd-srv
+    type: nodejs
+    path: gen/srv
+    parameters:
+      buildpack: nodejs_buildpack
+    build-parameters:
+      builder: npm
+    # NODE_ENV=development keeps mock services active (no real S/4 needed for trial)
+    properties:
+      NODE_ENV: development
+    provides:
+      - name: srv-api
+        properties:
+          srv-url: ${default-url}
+    requires:
+      - name: monitor-sd-auth
+
+  # ── Fiori HTML5 App (build step only) ──────────────────────────────────────
+  - name: monitor-sd-monitor
+    type: html5
+    path: app/monitor
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm install
+        - npm run build
+      supported-platforms: []
+
+  # ── HTML5 Content Deployer ─────────────────────────────────────────────────
+  - name: monitor-sd-app-content
+    type: com.sap.application.content
+    path: .
+    requires:
+      - name: monitor-sd-html5-repo-host
+        parameters:
+          content-target: true
+    build-parameters:
+      build-result: resources
+      requires:
+        - name: monitor-sd-monitor
+          artifacts:
+            - monitor.zip
+          target-path: resources/
+
+  # ── Destination Content ────────────────────────────────────────────────────
+  - name: monitor-sd-destination-content
+    type: com.sap.application.content
+    requires:
+      - name: monitor-sd-destination-service
+        parameters:
+          content-target: true
+      - name: monitor-sd-html5-repo-host
+        parameters:
+          service-key:
+            name: monitor-sd-html5-repo-host-key
+      - name: monitor-sd-auth
+        parameters:
+          service-key:
+            name: monitor-sd-auth-key
+    parameters:
+      content:
+        instance:
+          destinations:
+            - Name: monitor_sd_html5_repo_host
+              ServiceInstanceName: monitor-sd-html5-repo-host
+              ServiceKeyName: monitor-sd-html5-repo-host-key
+              sap.cloud.service: monitor.sd
+            - Name: monitor_sd_auth
+              Authentication: OAuth2UserTokenExchange
+              ServiceInstanceName: monitor-sd-auth
+              ServiceKeyName: monitor-sd-auth-key
+              sap.cloud.service: monitor.sd
+          existing_destinations_policy: update
+    build-parameters:
+      no-source: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RESOURCES
+# ─────────────────────────────────────────────────────────────────────────────
+
+resources:
+
+  # ── XSUAA ──────────────────────────────────────────────────────────────────
+  - name: monitor-sd-auth
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: xsuaa
+      service-plan: application
+      path: ./xs-security.json
+      config:
+        # Unique name per CF org/space to avoid conflicts between trial deployments
+        xsappname: monitor-sd-${org}-${space}
+        tenant-mode: dedicated
+
+  # ── HTML5 Application Repository ───────────────────────────────────────────
+  - name: monitor-sd-html5-repo-host
+    type: org.cloudfoundry.managed-service
+    parameters:
+      service: html5-apps-repo
+      service-plan: app-host
+
+  # ── Destination Service ────────────────────────────────────────────────────
+  - name: monitor-sd-destination-service
+    type: org.cloudfoundry.managed-service
+    requires:
+      - name: srv-api
+    parameters:
+      service: destination
+      service-plan: lite
+      config:
+        HTML5Runtime_enabled: true
+        init_data:
+          instance:
+            destinations:
+              # Points to the deployed CAP service; ForwardAuthToken passes BTP JWT
+              - Authentication: NoAuthentication
+                Name: monitor_sd_srv_api
+                ProxyType: Internet
+                Type: HTTP
+                URL: ~{srv-api/srv-url}
+                HTML5.DynamicDestination: true
+                HTML5.ForwardAuthToken: true
+            existing_destinations_policy: update

@@ -359,32 +359,98 @@ gen/srv
 
 ---
 
-## Seguridad y BTP
+## Deploy a BTP (Cloud Foundry)
 
-Archivos relevantes:
+### Instalación de herramientas (una sola vez)
 
-```text
-xs-security.json
-.cdsrc.json
-app/router/xs-app.json
-app/router/default-env.json
+```bash
+# MBT (Cloud MTA Build Tool)
+npm install -g mbt
+
+# CF CLI v8 — Linux sin snap
+curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8&source=github" -o /tmp/cf-cli.tar.gz
+cd /tmp && tar -xzf cf-cli.tar.gz && mkdir -p ~/.local/bin && cp cf8 ~/.local/bin/cf && chmod +x ~/.local/bin/cf
+echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+
+# Plugin MultiApps — necesario para cf deploy (sin él falla con "deploy is not a registered command")
+cf install-plugin multiapps -f
 ```
 
-Estado:
+### Requisitos previos
 
-- `xs-security.json` existe.
-- `.cdsrc.json` tiene configuración `[production]` para destinos S/4.
-- `app/router` existe como base de approuter.
-- `mta.yaml` todavía no está creado.
+- CF CLI instalado (`cf --version`) con plugin multiapps instalado
+- MBT instalado (`mbt --version`)
+- Sesión activa: `cf login -a https://api.cf.us10-001.hana.ondemand.com`
+- Espacio CF creado en el subaccount de trial
 
-Pendiente para productivización:
+### Archivos de deploy
 
-- Crear `mta.yaml`.
-- Configurar HTML5 Application Repository.
-- Configurar XSUAA.
-- Configurar Destination service.
-- Configurar destinos S/4 reales.
-- Añadir binding de Audit Log en BTP.
+```text
+mta.yaml                        ← descriptor MTA
+xs-security.json                ← definición XSUAA (scopes, roles)
+app/monitor/xs-app.json         ← routing HTML5 app → CAP service
+app/monitor/package.json        ← script de build (zip webapp)
+app/monitor/webapp/manifest.json ← incluye sap.cloud.service + crossNavigation
+.cdsrc.json                     ← perfil [production] con destinos S/4
+```
+
+### Servicios BTP que crea el deploy
+
+| Servicio | Plan | Para qué |
+|---|---|---|
+| `xsuaa` | `application` | Autenticación |
+| `html5-apps-repo` | `app-host` | Hosting del Fiori app |
+| `destination` | `lite` | Apuntar al CAP service |
+
+### Pasos
+
+```bash
+cd /home/juanma/workspace/sap/cap-n8n/workspace/monitor_sd
+
+mbt build -p cf
+cf deploy mta_archives/monitor-sd_1.0.0.mtar
+```
+
+El build tarda ~30s. El deploy ~5 min (crea servicios, sube app, arranca).
+
+### Acceder a la app tras el deploy
+
+**URL directa del FLP sandbox** (manifest real, 4 niveles de navegación):
+
+```text
+https://3be51d3ftrial-dev-monitor-sd-srv.cfapps.us10-001.hana.ondemand.com/monitor/webapp/test/flpSandbox.html
+```
+
+Esta URL funciona sin Work Zone ni configuración adicional. El `mta.yaml` copia
+el webapp al paquete del servidor CAP durante el build.
+
+**Via SAP Build Work Zone** (si el trial tiene IAS/OIDC configurado):
+
+1. Suscribirse a SAP Build Work Zone, edición estándar
+2. Asignar colección de roles `Launchpad_Admin` al usuario
+3. Ir a Channel Manager → HTML5 Apps → sincronizar
+4. Añadir tile `monitor.sd` → abre con manifest real
+
+> **Nota trial**: Work Zone requiere confianza OIDC con SAP Cloud Identity Services.
+> Si el global account no tiene tenant IAS, usar el `flpSandbox.html` directamente.
+
+### Nota sobre S/4 real
+
+En trial, `NODE_ENV=development` mantiene los mocks activos. Para apuntar a S/4 real:
+
+1. Crear destinos en BTP Destination Service:
+   - `S4HANA_SALES_ORDER`
+   - `S4HANA_DELIVERY`
+   - `S4HANA_BILLING`
+2. Quitar `NODE_ENV: development` del `mta.yaml`
+3. Hacer nuevo `mbt build -p cf` y `cf deploy`
+
+### Archivos de configuración de seguridad
+
+```text
+xs-security.json    ← scopes SalesViewer / LogisticsUser
+.cdsrc.json         ← perfil [production] con destinos S/4
+```
 
 ---
 
