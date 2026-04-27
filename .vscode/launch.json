@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Current Test (Headed)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["playwright", "test", "${relativeFile}", "--headed", "--debug"],
+      "console": "integratedTerminal",
+      "env": { "PRAMAN_DEBUG": "true" }
+    },
+    {
+      "name": "Debug All Tests (Headed)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["playwright", "test", "--headed", "--debug"],
+      "console": "integratedTerminal",
+      "env": { "PRAMAN_DEBUG": "true" }
+    },
+    {
+      "name": "Run Praman Doctor",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["playwright-praman", "doctor"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

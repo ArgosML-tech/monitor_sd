@@ -1,0 +1,132 @@
+{
+  "_version": "1.49.0",
+  "sap.app": {
+    "id": "monitor.sd",
+    "type": "application",
+    "title": "Monitor Sales-to-Cash",
+    "description": "Trazabilidad Pedido → Entrega → Factura",
+    "applicationVersion": { "version": "1.0.0" },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/MonitorSDService/",
+        "type": "OData",
+        "settings": { "odataVersion": "4.0" }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "fullWidth": false
+  },
+  "sap.ui5": {
+    "dependencies": {
+      "minUI5Version": "1.120.0",
+      "libs": {
+        "sap.fe.templates": {},
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.ui.layout": {}
+      }
+    },
+    "models": {
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "synchronizationMode": "None",
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true,
+          "groupId": "$direct"
+        }
+      },
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": { "bundleName": "monitor.sd.i18n.i18n" }
+      }
+    },
+    "routing": {
+      "routes": [
+        {
+          "name": "SalesOrdersList",
+          "pattern": "",
+          "target": "SalesOrdersList"
+        },
+        {
+          "name": "BillingDocumentsObjectPage",
+          "pattern": "SalesOrders({SalesOrdersKey})/Deliveries({DeliveriesKey})/BillingDocuments({BillingDocumentsKey}):?query:",
+          "target": "BillingDocumentsObjectPage"
+        },
+        {
+          "name": "DeliveriesObjectPage",
+          "pattern": "SalesOrders({SalesOrdersKey})/Deliveries({DeliveriesKey}):?query:",
+          "target": "DeliveriesObjectPage"
+        },
+        {
+          "name": "SalesOrdersObjectPage",
+          "pattern": "SalesOrders({SalesOrdersKey}):?query:",
+          "target": "SalesOrdersObjectPage"
+        }
+      ],
+      "targets": {
+        "SalesOrdersList": {
+          "type": "Component",
+          "id": "SalesOrdersList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/SalesOrders",
+              "variantManagement": "Page",
+              "initialLoad": true,
+              "navigation": {
+                "SalesOrders": {
+                  "detail": { "route": "SalesOrdersObjectPage" }
+                }
+              }
+            }
+          }
+        },
+        "SalesOrdersObjectPage": {
+          "type": "Component",
+          "id": "SalesOrdersObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "contextPath": "/SalesOrders",
+              "navigation": {
+                "Deliveries": {
+                  "detail": { "route": "DeliveriesObjectPage" }
+                }
+              }
+            }
+          }
+        },
+        "DeliveriesObjectPage": {
+          "type": "Component",
+          "id": "DeliveriesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "contextPath": "/SalesOrders/Deliveries",
+              "navigation": {
+                "BillingDocuments": {
+                  "detail": { "route": "BillingDocumentsObjectPage" }
+                }
+              }
+            }
+          }
+        },
+        "BillingDocumentsObjectPage": {
+          "type": "Component",
+          "id": "BillingDocumentsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "contextPath": "/SalesOrders/Deliveries/BillingDocuments"
+            }
+          }
+        }
+      }
+    }
+  }
+}

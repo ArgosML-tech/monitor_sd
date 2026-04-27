@@ -1,0 +1,35 @@
+{
+  "xsappname": "monitor-sd",
+  "tenant-mode": "dedicated",
+  "scopes": [
+    {
+      "name": "$XSAPPNAME.SalesViewer",
+      "description": "Consulta pedidos, entregas y facturas"
+    },
+    {
+      "name": "$XSAPPNAME.LogisticsUser",
+      "description": "Puede registrar GI y quitar bloqueos de entrega"
+    }
+  ],
+  "attributes": [
+    {
+      "name": "SalesOrganization",
+      "description": "Organización de ventas del usuario (para row-level security)",
+      "valueType": "string"
+    }
+  ],
+  "role-templates": [
+    {
+      "name": "SalesViewer",
+      "description": "Acceso de consulta al monitor Sales-to-Cash",
+      "scope-references": ["$XSAPPNAME.SalesViewer"],
+      "attribute-references": ["SalesOrganization"]
+    },
+    {
+      "name": "LogisticsUser",
+      "description": "Acceso completo incluyendo registro de GI y gestión de bloqueos",
+      "scope-references": ["$XSAPPNAME.SalesViewer", "$XSAPPNAME.LogisticsUser"],
+      "attribute-references": ["SalesOrganization"]
+    }
+  ]
+}

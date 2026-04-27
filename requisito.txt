@@ -1,0 +1,51 @@
+Documento de Definición de Requisito: App de Trazabilidad 360° (Sales-to-Cash)
+1. Objetivo del Requisito
+Desarrollar una extensión Side-by-Side sobre SAP BTP que permita la trazabilidad completa del flujo logístico en una sola vista jerárquica. La aplicación debe consolidar la información de Pedidos (Sales Orders), Entregas (Outbound Deliveries) y Facturas (Billing Documents), eliminando la fragmentación de datos entre los módulos de SD (Ventas), LE (Logística) y FI (Finanzas).
+
+2. Alcance Funcional (Flujo de Navegación)
+El sistema debe soportar un modelo de navegación de tres niveles de profundidad:
+
+Nivel 1: Monitor de Pedidos
+
+Visualización de una lista maestra de pedidos con filtros por cliente, fecha y organización de ventas.
+
+Acción: Al seleccionar un pedido, el sistema debe abrir una vista de detalle (Object Page).
+
+Nivel 2: Detalle de Pedido y Ejecución Logística
+
+La vista de detalle del pedido mostrará la información de cabecera y, de forma prominente, una tabla de entregas asociadas.
+
+Esta tabla debe mostrar el estado actual de cada entrega (ej. Picking pendiente, Salida de mercancía registrada).
+
+Acción: Al seleccionar una línea de entrega, el sistema debe navegar hacia la vista de detalle de esa entrega específica.
+
+Nivel 3: Detalle de Entrega y Cierre Financiero
+
+La vista de detalle de la entrega mostrará los bultos/pesos y una tabla con las facturas vinculadas.
+
+El usuario debe poder confirmar si la factura está contabilizada y ver el importe final.
+
+3. Requisitos de Integración y Datos
+Para asegurar la integridad y actualidad de la información, el proyecto se define bajo los siguientes pilares técnicos:
+
+Consumo en Tiempo Real: Los datos no se almacenarán de forma persistente en la base de datos de la aplicación. Se utilizará el modelo de servicios externos de CAP para consultar las APIs de S/4HANA mediante protocolos OData/SOAP en el momento de la petición.
+
+Mapeo de Relaciones: El backend de la aplicación debe ser capaz de resolver el "Flujo de Documentos". Esto implica seguir la cadena:
+
+Pedido (Documento Precedente).
+
+Entrega (Documento de Referencia del Pedido).
+
+Factura (Documento de Referencia de la Entrega).
+
+Gestión de Estados: El sistema debe interpretar los códigos de estado internos de SAP (ej. 'A', 'B', 'C') y transformarlos en estados semánticos comprensibles para el usuario (ej. Pendiente, En proceso, Completado).
+
+4. Requisitos de Interfaz de Usuario (UX)
+Diseño: Basado estrictamente en los estándares de SAP Fiori.
+
+Visibilidad: Uso de elementos visuales (micrográficos o indicadores de color) en las tablas de entregas y facturas para destacar documentos con errores o bloqueos.
+
+Responsividad: La aplicación debe ser funcional tanto en entornos de escritorio como en tablets de almacén.
+
+5. Resultado Esperado
+Una herramienta única de consulta que reduzca el tiempo de respuesta a clientes, permitiendo que cualquier usuario con permisos pueda rastrear dónde se encuentra una mercancía o por qué no se ha facturado un pedido sin navegar por el menú estándar de SAP.

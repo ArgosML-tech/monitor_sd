@@ -1,0 +1,12 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "launchOptions": {
+      "headless": false,
+      "channel": "chromium"
+    },
+    "initScript": [
+      "./node_modules/playwright-praman/dist/browser/praman-bridge-init.js"
+    ]
+  }
+}

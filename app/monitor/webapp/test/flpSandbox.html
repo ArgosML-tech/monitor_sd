@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monitor Sales-to-Cash</title>
+
+    <script>
+        // Local-only workaround for UI5 1.145 sandbox bootstrap:
+        // FE filter metadata may arrive as [\{...\}] instead of [{...}].
+        (function () {
+            const parse = JSON.parse;
+            JSON.parse = function (value, reviver) {
+                if (typeof value === "string" && value.startsWith("[\\{")) {
+                    value = value.replace(/\\([{}])/g, "$1");
+                }
+                return parse.call(this, value, reviver);
+            };
+        }());
+    </script>
+
+    <script>
+        window["sap-ushell-config"] = {
+            defaultRenderer: "fiori2",
+            bootstrapPlugins: {},
+            services: {
+                EndUserFeedback: {
+                    config: { enabled: false }
+                }
+            },
+            renderers: {
+                fiori2: {
+                    componentData: {
+                        config: {
+                            enableNotificationsUI: false,
+                            enableNotifications: false,
+                            enableSearch: false,
+                            search: "hidden",
+                            enablePersonalization: false,
+                            enableSetTheme: true,
+                            enableSetLanguage: true
+                        }
+                    }
+                }
+            },
+            applications: {
+                "MonitorSD-display": {
+                    title: "Monitor Sales-to-Cash",
+                    description: "Trazabilidad Pedido -> Entrega -> Factura",
+                    additionalInformation: "SAPUI5.Component=monitor.sd",
+                    applicationType: "URL",
+                    url: "/monitor/webapp",
+                    navigationMode: "embedded"
+                }
+            }
+        };
+
+        if (!window.location.hash || window.location.hash === "#") {
+            window.location.hash = "MonitorSD-display";
+        }
+    </script>
+
+    <script id="sap-ushell-bootstrap"
+        src="https://sapui5.hana.ondemand.com/1.120.0/test-resources/sap/ushell/bootstrap/sandbox.js">
+    </script>
+
+    <script id="sap-ui-bootstrap"
+        src="https://sapui5.hana.ondemand.com/1.120.0/resources/sap-ui-core.js"
+        data-sap-ui-flexibilityServices='[{"connector": "LocalStorageConnector"}]'
+        data-sap-ui-libs="sap.ui.core,sap.ui.generic.app,sap.ushell,sap.fe.core,sap.fe.macros,sap.fe.templates"
+        data-sap-ui-oninit="module:sap/ui/core/ComponentSupport"
+        data-sap-ui-compatVersion="edge"
+        data-sap-ui-theme="sap_horizon"
+        data-sap-ui-async="true"
+        data-sap-ui-frameOptions="allow"
+        data-sap-ui-preload="async"
+        data-sap-ui-resourceroots='{"monitor.sd": "/monitor/webapp", "monitor": "/monitor/webapp"}'>
+    </script>
+
+    <script>
+        function setTheme(dark) {
+            sap.ui.getCore().applyTheme(dark ? "sap_horizon_dark" : "sap_horizon");
+        }
+
+        const colorMatcher = window.matchMedia("(prefers-color-scheme: dark)");
+        setTheme(colorMatcher.matches);
+        colorMatcher.addEventListener("change", e => setTheme(e.matches));
+
+        sap.ui.getCore().attachInit(function () {
+            sap.ushell.Container.createRenderer("fiori2", true).then(function (renderer) {
+                renderer.placeAt("content");
+            });
+        });
+    </script>
+</head>
+<body class="sapUiBody sapUiSizeCompact" id="content"></body>
+</html>

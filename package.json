@@ -1,0 +1,49 @@
+{
+  "name": "monitor_sd",
+  "version": "1.0.0",
+  "dependencies": {
+    "@cap-js/audit-logging": "^1.2.0",
+    "@cap-js/hana": "^2",
+    "@sap-cloud-sdk/connectivity": "^4",
+    "@sap-cloud-sdk/http-client": "^4",
+    "@sap-cloud-sdk/resilience": "^4",
+    "@sap/cds": "^9"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^1.0.0",
+    "@cap-js/sqlite": "^2",
+    "@playwright/test": "^1.59.1",
+    "jest": "^30.3.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "test": "jest --testPathPatterns=test/"
+  },
+  "private": true,
+  "cds": {
+    "query": {
+      "limit": {
+        "reliablePaging": true,
+        "default": 50,
+        "max": 500
+      }
+    },
+    "requires": {
+      "API_SALES_ORDER_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_SALES_ORDER_SRV",
+        "impl": "srv/external/API_SALES_ORDER_SRV.js"
+      },
+      "OP_API_OUTBOUND_DELIVERY_SRV_0002": {
+        "kind": "odata-v2",
+        "model": "srv/external/OP_API_OUTBOUND_DELIVERY_SRV_0002",
+        "impl": "srv/external/OP_API_OUTBOUND_DELIVERY_SRV_0002.js"
+      },
+      "API_BILLING_DOCUMENT_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_BILLING_DOCUMENT_SRV",
+        "impl": "srv/external/API_BILLING_DOCUMENT_SRV.js"
+      }
+    }
+  }
+}

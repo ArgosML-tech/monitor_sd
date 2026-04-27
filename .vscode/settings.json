@@ -1,0 +1,7 @@
+{
+  "playwright.reuseBrowser": false,
+  "playwright.showTrace": true,
+  "editor.formatOnSave": true,
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+}

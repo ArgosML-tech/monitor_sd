@@ -1,0 +1,74 @@
+{
+  "Praman UI5 Test": {
+    "prefix": "praman-test",
+    "scope": "typescript",
+    "body": [
+      "import { test, expect } from 'playwright-praman';",
+      "",
+      "test('$1', async ({ ui5, ui5Navigation }) => {",
+      "  await test.step('$2', async () => {",
+      "    await ui5Navigation.navigateToApp('$3');",
+      "    await ui5.waitForUI5();",
+      "  });",
+      "",
+      "  await test.step('$4', async () => {",
+      "    $0",
+      "  });",
+      "});"
+    ],
+    "description": "Praman SAP UI5 test scaffold"
+  },
+  "Praman Step": {
+    "prefix": "praman-step",
+    "scope": "typescript",
+    "body": ["await test.step('$1', async () => {", "  $0", "});"],
+    "description": "Praman test step"
+  },
+  "Praman Button Click": {
+    "prefix": "praman-click",
+    "scope": "typescript",
+    "body": [
+      "const ${1:btn} = await ui5.control({",
+      "  controlType: '${2:sap.m.Button}',",
+      "  properties: { text: '${3:Create}' },",
+      "});",
+      "await ${1:btn}.press();",
+      "await ui5.waitForUI5();"
+    ],
+    "description": "Click a UI5 button"
+  },
+  "Praman Input Fill": {
+    "prefix": "praman-fill",
+    "scope": "typescript",
+    "body": [
+      "await ui5.fill({ controlType: '${1:sap.m.Input}', properties: { name: '${2:fieldName}' } }, '${3:value}');",
+      "await ui5.waitForUI5();"
+    ],
+    "description": "Fill a UI5 input field"
+  },
+  "Praman Table Read": {
+    "prefix": "praman-table",
+    "scope": "typescript",
+    "body": [
+      "const rowCount = await ui5.table.getRowCount('${1:tableId}');",
+      "const cellValue = await ui5.table.getCellValue('${1:tableId}', ${2:0}, ${3:0});",
+      "expect(cellValue).toBe('${4:expected}');"
+    ],
+    "description": "Read from a UI5 table"
+  },
+  "Praman Dialog Handle": {
+    "prefix": "praman-dialog",
+    "scope": "typescript",
+    "body": [
+      "await ui5.dialog.waitFor();",
+      "const dialogBtn = await ui5.control({",
+      "  controlType: 'sap.m.Button',",
+      "  properties: { text: '${1:OK}' },",
+      "  searchOpenDialogs: true,",
+      "});",
+      "await dialogBtn.press();",
+      "await ui5.dialog.waitForClosed();"
+    ],
+    "description": "Handle a UI5 dialog"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "requires": {
+    "[production]": {
+      "API_SALES_ORDER_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_SALES_ORDER_SRV",
+        "csrf": true,
+        "credentials": { "destination": "S4HANA_SALES_ORDER", "requestTimeout": 15000 }
+      },
+      "OP_API_OUTBOUND_DELIVERY_SRV_0002": {
+        "kind": "odata-v2",
+        "model": "srv/external/OP_API_OUTBOUND_DELIVERY_SRV_0002",
+        "csrf": true,
+        "credentials": { "destination": "S4HANA_DELIVERY", "requestTimeout": 15000 }
+      },
+      "API_BILLING_DOCUMENT_SRV": {
+        "kind": "odata-v2",
+        "model": "srv/external/API_BILLING_DOCUMENT_SRV",
+        "credentials": { "destination": "S4HANA_BILLING", "requestTimeout": 15000 }
+      }
+    }
+  }
+}
